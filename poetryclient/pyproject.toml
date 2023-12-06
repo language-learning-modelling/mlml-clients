@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "mlml-client"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "mlml_client"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mlml-hugginface = {git = "https://github.com/language-learning-modelling/mlm-pipeline.git"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
