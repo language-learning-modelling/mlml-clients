@@ -1,5 +1,5 @@
 {
-	"model_checkpoint": "distilbert-base-uncased",
+	"model_checkpoint": "./models/distilbert-base-uncased",
 	"model_type": "distilbert",
 	"dataset_name": "imdb",
 	"mlm_probability": 0.15,

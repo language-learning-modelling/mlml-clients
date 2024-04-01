@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "mlml_client"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3"
 mlml-hugginface = {git = "https://github.com/language-learning-modelling/mlm-pipeline.git"}
 
 
