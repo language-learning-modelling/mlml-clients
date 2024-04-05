@@ -1,6 +1,6 @@
 from mlml_hugginface import Trainer, Downloader
 
-downloader = Downloader("./run_configs/download_distillbert.json")
+downloader = Downloader("./run_configs/download_bert_base_uncased.json")
 downloader.downloadLocally()
 
 '''
