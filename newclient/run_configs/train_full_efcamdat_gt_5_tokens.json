@@ -1,0 +1,7 @@
+{
+	"model_checkpoint": "./models/bert-base-uncased",
+	"model_type": "bert-base-uncased",
+	"dataset_name": "./EFCAMDAT_2_thomas_sentences_gt5.txt",
+	"mlm_probability": 0.15,
+	"batch_size": 4 
+}

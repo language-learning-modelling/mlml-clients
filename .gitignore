@@ -182,3 +182,5 @@ pyrightconfig.json
 ./poetryclient/__pyenv__/
 ./poetryclient/models/
 ./pipclient/models/
+newclient/newenv/
+newclient/models/
