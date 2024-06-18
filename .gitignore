@@ -184,3 +184,4 @@ pyrightconfig.json
 ./pipclient/models/
 newclient/newenv/
 newclient/models/
+newclient/datasets

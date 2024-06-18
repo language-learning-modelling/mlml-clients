@@ -1,0 +1,8 @@
+{
+	"model_checkpoint": "./models/bert-base-uncased",
+	"model_type": "bert-base-uncased",
+	"hf_checkpoint": "./models/bert-base-uncased-finetuned-mlm_texts_B1.txt/checkpoint-50000",
+	"dataset_name": "./datasets/EFCAMDAT/mlm_texts_B1.txt",
+	"mlm_probability": 0.15,
+	"batch_size": 4 
+}
