@@ -1,0 +1,7 @@
+{
+	"model_checkpoint": "./models/bert-base-uncased",
+	"model_type": "bert-base-uncased",
+	"dataset_name": "datasets/C4200m/C4200m_all.txt",
+	"mlm_probability": 0.15,
+	"batch_size": 4 
+}
