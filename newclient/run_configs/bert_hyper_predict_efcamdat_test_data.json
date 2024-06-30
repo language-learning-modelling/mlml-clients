@@ -1,0 +1,5 @@
+{
+	"model_checkpoint": "./models/checkpoint-464970",
+	"input_fp": "./datasets/test-efcamdat-predictions_2024-6-26_19:24:48_topk_5.json",
+	"batch_size": 10
+}

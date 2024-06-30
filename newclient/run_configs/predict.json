@@ -1,7 +1,8 @@
 {
 	"model_checkpoint": "./models/bert-base-uncased-finetuned-mlm_texts_A1.txt/checkpoint-307040",
-	"texts": [
-		"This is a great [MASK]."
-	],
-	"input_fp": "./train_cleaned_efcamdat__all.txt" 
+	"input_fp": "./train_cleaned_efcamdat__all.txt",
+	"texts_examples": [
+		"This is a great [MASK] .",
+		"I once had a [MASK] for dinner ."
+	]
 }

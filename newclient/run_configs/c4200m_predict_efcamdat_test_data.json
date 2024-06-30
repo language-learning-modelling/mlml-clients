@@ -1,0 +1,7 @@
+{
+	"model_checkpoint": "./models/bert-base-uncased-c4200m-unchaged-vocab-73640000",
+	"input_fp": "./datasets/test-efcamdat-predictions_2024-6-26_19:24:48_topk_5.json",
+	"output_fp_template": "./datasets/EFCAMDAT/predictions_batch/test",
+	"batch_size": 10,
+	"top_k": 100
+}
