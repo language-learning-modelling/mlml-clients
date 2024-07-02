@@ -1,10 +1,14 @@
 from mlml_hugginface import Trainer, Downloader
 import sys
 
-training_fp = sys.argv[1]
+training_config_fp = sys.argv[1]
 
-downloader = Downloader("./run_configs/download_xlm_roberta_base.json")
-downloader.downloadLocally()
+if len(sys.argv) > 2:
+    download_config_fp = sys.argv[2]
+    downloader = Downloader(download_config_fp)
+    downloader.downloadLocally()
 
-trainer = Trainer(training_fp)
+'''
+trainer = Trainer(training_config_fp)
 trainer.train()
+'''

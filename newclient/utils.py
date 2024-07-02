@@ -11,7 +11,7 @@ def load_maskedsentence_txt(filepath, filename):
 
 def load_config(config_fp_or_jsonstr):
     if os.path.exists(config_fp_or_jsonstr): 
-        with open(config_filepath_or_dictstr) as inpf:
+        with open(config_fp_or_jsonstr) as inpf:
             config = json.load(inpf)
             config = {k.upper(): v for k, v in config.items()}
             return config

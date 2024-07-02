@@ -2,7 +2,7 @@
 # var for session name (to avoid repeated occurences)
 PYTHONBIN="/home/berstearns/projects/language-learning-modelling/mlml-clients/newclient/newenv/bin/python3"
 SCRIPTFP="predict.py"
-MAX_NUM_TO_PROCESS=2
+MAX_NUM_TO_PROCESS=1
 sn=xyz
 
 # Start the session and window 0 in /etc
@@ -17,8 +17,8 @@ SPLIT="train"
 INPUT_BATCH_FOLDER="./datasets/EFCAMDAT/masked_sentences_batch/${SPLIT}"
 OUTPUT_BATCH_FOLDER="./datasets/EFCAMDAT/predictions_batch/${SPLIT}"
 MODEL_CHECKPOINT="./models/bert-base-uncased-c4200m-unchaged-vocab-73640000"
-BATCH_SIZE=75
-TOP_K=10
+BATCH_SIZE=30
+TOP_K=100
 for FILENAME in `ls $INPUT_BATCH_FOLDER`;
 do
 	EXPECTED_OUTPUT='${OUTPUT_BATCH_FOLDER}/${FILENAME}'
@@ -52,7 +52,8 @@ do
     echo $CONFIG
     # echo $CONFIG
     #tmux new-window -t "$sn:$((i+1))" -n "${FILENAME:(-3)}" "zsh -c script.py"
-    $COMMAND &
+    $COMMAND
+    # &
 done
 
 # Set the default cwd for new windows (optional, otherwise defaults to session cwd)
