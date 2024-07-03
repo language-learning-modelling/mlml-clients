@@ -13,9 +13,12 @@ sn=xyz
 # Expect to be in the selva-agreements/clients/poetry-clinet folder 
 # Create a bunch of windows, one for each data split
 DATASPLITS=()
-SPLIT="train"
-INPUT_BATCH_FOLDER="./datasets/EFCAMDAT/masked_sentences_batch/${SPLIT}"
-OUTPUT_BATCH_FOLDER="./datasets/EFCAMDAT/predictions_batch/${SPLIT}"
+SPLIT=""
+DATASET="CELVA"
+INPUT_BATCH_FOLDER="./datasets/${DATASET}/masked_sentences_batch"
+OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
+#"./datasets/EFCAMDAT/masked_sentences_batch/${SPLIT}"
+#"./datasets/EFCAMDAT/predictions_batch/${SPLIT}"
 MODEL_CHECKPOINT="./models/bert-base-uncased-c4200m-unchaged-vocab-73640000"
 BATCH_SIZE=30
 TOP_K=100
