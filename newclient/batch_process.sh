@@ -20,11 +20,13 @@ OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
 #"./datasets/EFCAMDAT/masked_sentences_batch/${SPLIT}"
 #"./datasets/EFCAMDAT/predictions_batch/${SPLIT}"
 MODEL_CHECKPOINT="./models/bert-base-uncased-c4200m-unchaged-vocab-73640000"
-BATCH_SIZE=30
+MODEL_NAME="bert-base-uncased-c4200m-unchaged-vocab-73640000"
+BATCH_SIZE=40
 TOP_K=100
 for FILENAME in `ls $INPUT_BATCH_FOLDER`;
 do
-	EXPECTED_OUTPUT='${OUTPUT_BATCH_FOLDER}/${FILENAME}'
+	EXPECTED_OUTPUT=${OUTPUT_BATCH_FOLDER}/${FILENAME}_${MODEL_NAME}.json
+	echo $EXPECTED_OUTPUT
 	TEST=`wc -l $EXPECTED_OUTPUT 2> /dev/null | awk -F ' ' '{ print $1 }' `  
 	if [ -n "$TEST" ] && [ "$TEST" -gt 0 ] 
 	then
@@ -50,7 +52,7 @@ do
             batch_size=$BATCH_SIZE\
             top_k=$TOP_K\
 	   `
-    COMMAND="${PYTHONBIN} -W ignore ${SCRIPTFP} $CONFIG" 
+    COMMAND="${PYTHONBIN} -i -W ignore ${SCRIPTFP} $CONFIG" 
     echo $i "->" ${DATASPLITS[$i]}
     echo $CONFIG
     # echo $CONFIG

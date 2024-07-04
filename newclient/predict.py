@@ -24,11 +24,16 @@ def write_batch_file(OUTPUT_FOLDER,
                 INPUT_FILENAME,
                 MODEL_CHECKPOINT,
                 batch_idx,
-                writing_batch):
-    batch_outfp=f"{OUTPUT_FOLDER}/{INPUT_FILENAME}_batch_{batch_idx}_{MODEL_CHECKPOINT}.json"
+                data_dict,
+                is_batch=True
+                     ):
+    if is_batch:
+        batch_outfp=f"{OUTPUT_FOLDER}/{INPUT_FILENAME}_batch_{batch_idx}_{MODEL_CHECKPOINT}.json"
+    else:
+        batch_outfp=f"{OUTPUT_FOLDER}/{INPUT_FILENAME}_{MODEL_CHECKPOINT}.json"
     with open(batch_outfp,"w") as batch_outf:
         dict_str = json.dumps(
-                writing_batch,
+                data_dict,
                 indent=4)
         batch_outf.write(dict_str)
 
@@ -39,21 +44,34 @@ if __name__ == "__main__":
     config.INPUT_FILENAME = config.INPUT_FP.split("/")[-1] 
     config.MODEL_NAME = config.MODEL_CHECKPOINT.split("/")[-1] 
     config.TEXTS = json.load(open(config.INPUT_FP)) 
+    #import random
+    #sample_keys = random.sample(sorted(config.TEXTS.keys()),30) 
+    #config.TEXTS = {k:config.TEXTS[k] for k in sample_keys} 
     p = Predictor(config_obj=config)
-    writing_batch = {}
+    writing_batch = config.TEXTS.copy() 
     writing_size = 500
-    n_of_txts = len(config.TEXTS)
-    n_of_iterations = n_of_txts // config.BATCH_SIZE\
-            if   (n_of_txts % config.BATCH_SIZE) == 0\
-            else (n_of_txts // config.BATCH_SIZE) + 1
+    n_of_maskedsentences = sum(len(text_d['tokens']) for text_d in config.TEXTS.values())
+    n_of_iterations = n_of_maskedsentences // config.BATCH_SIZE\
+            if   (n_of_maskedsentences % config.BATCH_SIZE) == 0\
+            else (n_of_maskedsentences // config.BATCH_SIZE) + 1
     pbar = tqdm(range(n_of_iterations))
+    processed_count=0
+    batch_generator = p.predict()
     for batch_idx in pbar:
         s=time.time()
-        ranked_vocab_dict_per_masked_sentence = next(p.predict())
-        exit()
+        ranked_vocab_dict_per_masked_sentence = next(batch_generator)
+        processed_count+=len(ranked_vocab_dict_per_masked_sentence)
+        print(f'# of MS processed : {len(ranked_vocab_dict_per_masked_sentence)} totalling : {processed_count}')
+        for mlm_id, preds_dict_lst\
+                in ranked_vocab_dict_per_masked_sentence.items():
+
+            text_id, token_idx=mlm_id.split("_")[-2:]
+            token_idx = int(token_idx)
+            writing_batch[text_id]["tokens"][token_idx]["predictions"]["models"][config.MODEL_NAME] = preds_dict_lst
         elapsed=time.time()-s
         pbar.set_description(f"iteration took {elapsed} seconds")
-        writing_batch.update(ranked_vocab_dict_per_masked_sentence)
+        # writing_batch.update(ranked_vocab_dict_per_masked_sentence)
+        '''
         if len(writing_batch) >= writing_size:
             write_batch_file(
                     config.OUTPUT_FOLDER,
@@ -63,11 +81,12 @@ if __name__ == "__main__":
                     writing_batch
             )
             writing_batch = {}
-    if len(writing_batch) >= 0:
-            write_batch_file(
-                    config.OUTPUT_FOLDER,
-                    config.INPUT_FILENAME, 
-                    config.MODEL_NAME,
-                    batch_idx,
-                    writing_batch
-            )
+        '''
+    write_batch_file(
+            config.OUTPUT_FOLDER,
+            config.INPUT_FILENAME, 
+            config.MODEL_NAME,
+            batch_idx,
+            writing_batch,
+            is_batch=False
+    )
