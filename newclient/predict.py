@@ -37,13 +37,30 @@ def write_batch_file(OUTPUT_FOLDER,
                 indent=4)
         batch_outf.write(dict_str)
 
+def filter_already_processed_for_given_model(
+        texts_dict_dict,
+        model_name 
+    ):
+    print(len(texts_dict_dict.keys()))
+    filtered_data = texts_dict_dict.copy()
+    for text_id, text_dict in texts_dict_dict.items():
+     f=all(token_dict["predictions"]["models"].get(model_name, False)
+        for token_idx, token_dict in enumerate(text_dict["tokens"]))
+     if f:
+         del filtered_data[text_id]
+    return filtered_data
+def check_each_text_that_has_a_prediction_has_for_all_tokens(text_dict):
+    pass
 if __name__ == "__main__":
     config_fp_or_jsonstr = "".join(sys.argv[1:])
     config_dict = load_config(config_fp_or_jsonstr)
     config = Config(**config_dict) 
     config.INPUT_FILENAME = config.INPUT_FP.split("/")[-1] 
     config.MODEL_NAME = config.MODEL_CHECKPOINT.split("/")[-1] 
-    config.TEXTS = json.load(open(config.INPUT_FP)) 
+    config.TEXTS = filter_already_processed_for_given_model(
+            json.load(open(config.INPUT_FP)), 
+            config.MODEL_NAME 
+            )
     #import random
     #sample_keys = random.sample(sorted(config.TEXTS.keys()),30) 
     #config.TEXTS = {k:config.TEXTS[k] for k in sample_keys} 

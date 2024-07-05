@@ -16,10 +16,12 @@ DATASPLITS=()
 SPLIT=""
 DATASET="CELVA"
 INPUT_BATCH_FOLDER="./datasets/${DATASET}/masked_sentences_batch"
+#"/home/berstearns/projects/language-learning-modelling/mlml-clients/newclient/datasets/samples/celva"
 OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
 #"./datasets/EFCAMDAT/masked_sentences_batch/${SPLIT}"
 #"./datasets/EFCAMDAT/predictions_batch/${SPLIT}"
-MODEL_CHECKPOINT="./models/bert-base-uncased-c4200m-unchaged-vocab-73640000"
+MODEL_CHECKPOINT="./models/bert-base-uncased"
+#"./models/bert-base-uncased-c4200m-unchaged-vocab-73640000"
 MODEL_NAME="bert-base-uncased-c4200m-unchaged-vocab-73640000"
 BATCH_SIZE=40
 TOP_K=100
