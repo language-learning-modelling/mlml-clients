@@ -76,7 +76,11 @@ if __name__ == "__main__":
     batch_generator = p.predict()
     for batch_idx in pbar:
         s=time.time()
-        ranked_vocab_dict_per_masked_sentence = next(batch_generator)
+        try:
+            ranked_vocab_dict_per_masked_sentence = next(batch_generator)
+        except StopIteration:
+            break
+
         processed_count+=len(ranked_vocab_dict_per_masked_sentence)
         print(f'# of MS processed : {len(ranked_vocab_dict_per_masked_sentence)} totalling : {processed_count}')
         for mlm_id, preds_dict_lst\
