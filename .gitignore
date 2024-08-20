@@ -187,3 +187,4 @@ newclient/models/
 newclient/datasets
 test_cleaned_efcamdat__all.txt*
 train_cleaned_efcamdat__all.txt*
+newclient/error_pred.txt

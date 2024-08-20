@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 from mlml_hugginface import Predictor
@@ -20,54 +21,70 @@ class Config:
             if self.__getattribute__(field_key) is None:
              raise ValueError(f'missing {field_key} config property')
 
-def write_batch_file(OUTPUT_FOLDER,
-                INPUT_FILENAME,
-                MODEL_CHECKPOINT,
-                batch_idx,
+def write_batch_file(
+                output_fp,
                 data_dict,
-                is_batch=True
                      ):
-    if is_batch:
-        batch_outfp=f"{OUTPUT_FOLDER}/{INPUT_FILENAME}_batch_{batch_idx}_{MODEL_CHECKPOINT}.json"
-    else:
-        batch_outfp=f"{OUTPUT_FOLDER}/{INPUT_FILENAME}_{MODEL_CHECKPOINT}.json"
-    with open(batch_outfp,"w") as batch_outf:
+    with open(output_fp,"w") as batch_outf:
         dict_str = json.dumps(
                 data_dict,
                 indent=4)
         batch_outf.write(dict_str)
 
-def filter_already_processed_for_given_model(
+def flag_already_processed_for_given_model(
         texts_dict_dict,
         model_name 
     ):
-    print(len(texts_dict_dict.keys()))
     filtered_data = texts_dict_dict.copy()
-    for text_id, text_dict in texts_dict_dict.items():
+    for text_id, text_dict in list(texts_dict_dict.items())[::-1]:
      f=all(token_dict["predictions"]["models"].get(model_name, False)
         for token_idx, token_dict in enumerate(text_dict["tokens"]))
      if f:
-         del filtered_data[text_id]
+         del filtered_data[text_id] 
+         '''filtered_data[text_id] = {
+                 f"{model_name}_is_processed": True,
+                 }'''
+     elif not f:
+         pass
+         '''filtered_data[text_id] = {
+                 f"{model_name}_is_processed": False
+                 }'''
+     # filtered_data[text_id].update(text_dict) 
     return filtered_data
-def check_each_text_that_has_a_prediction_has_for_all_tokens(text_dict):
-    pass
+
+def load_input_or_partial(input_fp, output_folder):
+    expected_partial=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
+    if os.path.exists(expected_partial):
+        texts = json.load(open(expected_partial))
+    else:
+        texts = json.load(open(input_fp))
+    return texts
+
 if __name__ == "__main__":
     config_fp_or_jsonstr = "".join(sys.argv[1:])
     config_dict = load_config(config_fp_or_jsonstr)
     config = Config(**config_dict) 
     config.INPUT_FILENAME = config.INPUT_FP.split("/")[-1] 
     config.MODEL_NAME = config.MODEL_CHECKPOINT.split("/")[-1] 
-    config.TEXTS = filter_already_processed_for_given_model(
-            json.load(open(config.INPUT_FP)), 
+    writing_batch = load_input_or_partial(
+                config.INPUT_FP,
+                config.OUTPUT_FOLDER
+                ) 
+    print(f' original input file has {len(writing_batch.keys())} texts')
+    config.TEXTS = flag_already_processed_for_given_model(
+            writing_batch,
             config.MODEL_NAME 
             )
+    print(f' after flagging already processed for {config.MODEL_NAME} texts has {len(config.TEXTS.keys())} texts to be processed')
     #import random
     #sample_keys = random.sample(sorted(config.TEXTS.keys()),30) 
     #config.TEXTS = {k:config.TEXTS[k] for k in sample_keys} 
     p = Predictor(config_obj=config)
-    writing_batch = config.TEXTS.copy() 
-    writing_size = 500
     n_of_maskedsentences = sum(len(text_d['tokens']) for text_d in config.TEXTS.values())
+    n_of_saving_steps = 10 
+    writing_size = n_of_maskedsentences // n_of_saving_steps\
+            if   (n_of_maskedsentences % n_of_saving_steps) == 0\
+            else (n_of_maskedsentences // n_of_saving_steps) + 1
     n_of_iterations = n_of_maskedsentences // config.BATCH_SIZE\
             if   (n_of_maskedsentences % config.BATCH_SIZE) == 0\
             else (n_of_maskedsentences // config.BATCH_SIZE) + 1
@@ -82,32 +99,24 @@ if __name__ == "__main__":
             break
 
         processed_count+=len(ranked_vocab_dict_per_masked_sentence)
-        print(f'# of MS processed : {len(ranked_vocab_dict_per_masked_sentence)} totalling : {processed_count}')
         for mlm_id, preds_dict_lst\
                 in ranked_vocab_dict_per_masked_sentence.items():
 
             text_id, token_idx=mlm_id.split("_")[-2:]
             token_idx = int(token_idx)
             writing_batch[text_id]["tokens"][token_idx]["predictions"]["models"][config.MODEL_NAME] = preds_dict_lst
-        elapsed=time.time()-s
-        pbar.set_description(f"iteration took {elapsed} seconds")
         # writing_batch.update(ranked_vocab_dict_per_masked_sentence)
-        '''
-        if len(writing_batch) >= writing_size:
+        if processed_count >= writing_size:
+            writing_size+=writing_size
+            batch_outfp=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
             write_batch_file(
-                    config.OUTPUT_FOLDER,
-                    config.INPUT_FILENAME, 
-                    config.MODEL_NAME,
-                    batch_idx,
+                    batch_outfp,
                     writing_batch
             )
-            writing_batch = {}
-        '''
+        elapsed=time.time()-s
+        pbar.set_description(f'# proc : {len(ranked_vocab_dict_per_masked_sentence)} total : {processed_count} save when reaches: {writing_size} it {elapsed} seconds')
+    batch_outfp=f"{config.OUTPUT_FOLDER}/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
     write_batch_file(
-            config.OUTPUT_FOLDER,
-            config.INPUT_FILENAME, 
-            config.MODEL_NAME,
-            batch_idx,
-            writing_batch,
-            is_batch=False
+            batch_outfp,
+            writing_batch
     )

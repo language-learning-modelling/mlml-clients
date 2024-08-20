@@ -2,70 +2,79 @@
 # var for session name (to avoid repeated occurences)
 PYTHONBIN="/home/berstearns/projects/language-learning-modelling/mlml-clients/newclient/newenv/bin/python3"
 SCRIPTFP="predict.py"
-MAX_NUM_TO_PROCESS=1
-sn=xyz
-
-# Start the session and window 0 in /etc
-#   This will also be the default cwd for new windows created
-#   via a binding unless overridden with default-path.
-#tmux new-session -s "$sn" -n tokenization -d
-
-# Expect to be in the selva-agreements/clients/poetry-clinet folder 
-# Create a bunch of windows, one for each data split
+MAX_NUM_TO_PROCESS=80
+# sn=xyz
 DATASPLITS=()
-SPLIT=""
-DATASET="CELVA"
-INPUT_BATCH_FOLDER="./datasets/${DATASET}/masked_sentences_batch"
-#"/home/berstearns/projects/language-learning-modelling/mlml-clients/newclient/datasets/samples/celva"
-OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
-#"./datasets/EFCAMDAT/masked_sentences_batch/${SPLIT}"
-#"./datasets/EFCAMDAT/predictions_batch/${SPLIT}"
-MODEL_CHECKPOINT="./models/bert-base-uncased"
-#"./models/bert-base-uncased-c4200m-unchaged-vocab-73640000"
-MODEL_NAME="bert-base-uncased-c4200m-unchaged-vocab-73640000"
-BATCH_SIZE=40
+BATCH_SIZE=20
 TOP_K=100
-for FILENAME in `ls $INPUT_BATCH_FOLDER`;
-do
-	EXPECTED_OUTPUT=${OUTPUT_BATCH_FOLDER}/${FILENAME}_${MODEL_NAME}.json
-	echo $EXPECTED_OUTPUT
-	TEST=`wc -l $EXPECTED_OUTPUT 2> /dev/null | awk -F ' ' '{ print $1 }' `  
-	if [ -n "$TEST" ] && [ "$TEST" -gt 0 ] 
-	then
-		LINECOUNT=`wc -l $EXPECTED_OUTPUT | awk -F ' ' '{ print $1 }'` 
-	else
-		if [ "${#DATASPLITS[@]}" -lt $MAX_NUM_TO_PROCESS ]
-		then
-			echo "$FILENAME will be processed";
-			DATASPLITS+=( $FILENAME )
-		fi
-	fi
-done
-for i in ${!DATASPLITS[@]}; 
-do
-    FILENAME=${DATASPLITS[$i]}
-    FILEPATH="${INPUT_BATCH_FOLDER}/${FILENAME}"
-    #CONFIG={"input_fp": "$FILEPATH","output_folder":"$OUTPUT_BATCH_FOLDER"}
-    #CONFIG=\''{"input_fp": "'"$FILEPATH"',"output_folder": "'"$OUTPUT_BATCH_FOLDER"'"}'\'
-    CONFIG=`jo -p\
-	    input_fp=$FILEPATH\
-	    output_folder=$OUTPUT_BATCH_FOLDER\
-            model_checkpoint=$MODEL_CHECKPOINT\
-            batch_size=$BATCH_SIZE\
-            top_k=$TOP_K\
-	   `
-    COMMAND="${PYTHONBIN} -i -W ignore ${SCRIPTFP} $CONFIG" 
-    echo $i "->" ${DATASPLITS[$i]}
-    echo $CONFIG
-    # echo $CONFIG
-    #tmux new-window -t "$sn:$((i+1))" -n "${FILENAME:(-3)}" "zsh -c script.py"
-    $COMMAND
-    # &
-done
 
-# Set the default cwd for new windows (optional, otherwise defaults to session cwd)
-#tmux set-option default-path /
+##################
+## CELVA FULL   ##
+##################
+# SPLIT=""
+# DATASET="CELVA"
+# INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch"
+# OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
+# MODEL_NAME="mosaic-bert-base"
+# MODEL_CHECKPOINT="./models/${MODEL_NAME}"
+##################
+## EFCAMDAT TRAIN/TEST##
+##################
+SPLIT="test"
+DATASET="EFCAMDAT"
+MODEL_NAME="bert-base-uncased"
+MODEL_CHECKPOINT="./models/${MODEL_NAME}"
+INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch/${SPLIT}"
+OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch/${SPLIT}"
+FINALIZED_BATCH_FOLDER="./datasets/${DATASET}/finalized/${MODEL_NAME}"
 
-# Select window #1 and attach to the session
-#tmux select-window -t "$sn:0"
-#tmux -2 attach-session -t "$sn"
+for INPUTFILENAME in $(ls $INPUT_BATCH_FOLDER -p | grep -v /); do
+  OUTPUTFILENAME=${INPUTFILENAME}_${MODEL_NAME}
+  echo $OUTPUTFILENAME
+  EXPECTED_JSON_OUTPUT=${OUTPUT_BATCH_FOLDER}/$OUTPUTFILENAME.json
+  EXPECTED_JSON_GZIP_OUTPUT=${OUTPUT_BATCH_FOLDER}/$OUTPUTFILENAME.json.gz
+  EXPECTED_JSON_COMPACT_OUTPUT=${OUTPUT_BATCH_FOLDER}/$OUTPUTFILENAME.json.compact
+  #TEST=`wc -l $EXPECTED_OUTPUT 2> /dev/null | awk -F ' ' '{ print $1 }' `
+  #if [ -n "$TEST" ] && [ "$TEST" -gt 0 ]
+  TEST=$(ls $OUTPUT_BATCH_FOLDER | grep -e $OUTPUTFILENAME)
+  TEST2=$(ls $FINALIZED_BATCH_FOLDER | grep -e $OUTPUTFILENAME)
+  #echo $INPUTFILENAME;
+  #echo $TEST;
+  #read -p name
+  NOTEST=""
+  if [[ "$NOTEST" == "true" ]]; then
+    TEST=""
+    TEST2=""
+  fi
+  if [ -n "$TEST" ]; then
+    :
+  elif [ -n "$TEST2" ]; then
+    :
+  else
+    if [ "${#DATASPLITS[@]}" -lt $MAX_NUM_TO_PROCESS ]; then
+      if [[ true ]]; then # $INPUTFILENAME == *ag.json*
+        echo "$INPUTFILENAME will be processed"
+        DATASPLITS+=($INPUTFILENAME)
+      fi
+    fi
+  fi
+done
+for i in ${!DATASPLITS[@]}; do
+  INPUTFILENAME=${DATASPLITS[$i]}
+  FILEPATH="${INPUT_BATCH_FOLDER}/${INPUTFILENAME}"
+  #CONFIG={"input_fp": "$FILEPATH","output_folder":"$OUTPUT_BATCH_FOLDER"}
+  #CONFIG=\''{"input_fp": "'"$FILEPATH"',"output_folder": "'"$OUTPUT_BATCH_FOLDER"'"}'\'
+  CONFIG=$(jo -p input_fp=$FILEPATH output_folder=$OUTPUT_BATCH_FOLDER model_checkpoint=$MODEL_CHECKPOINT batch_size=$BATCH_SIZE top_k=$TOP_K)
+  COMMAND="${PYTHONBIN} -W ignore ${SCRIPTFP} $CONFIG" # -i
+  echo $i "->" ${DATASPLITS[$i]}
+  echo $CONFIG
+  # echo $CONFIG #tmux new-window -t "$sn:$((i+1))" -n "${INPUTFILENAME:(-3)}" "zsh -c script.py"
+  $COMMAND
+  EXPECTED_PARTIAL_JSON_OUTPUT="${OUTPUT_BATCH_FOLDER}/partial/$OUTPUTFILENAME.json"
+  TEST=$(ls $OUTPUT_BATCH_FOLDER | grep -e $OUTPUTFILENAME)
+  if [ -n "$TEST" ]; then
+    jq -c . <$EXPECTED_JSON_OUTPUT >$EXPECTED_JSON_OUTPUT'.compact'
+    gzip -9 $EXPECTED_JSON_OUTPUT'.compact'
+    rm $EXPECTED_PARTIAL_JSON_OUTPUT
+  fi
+done
