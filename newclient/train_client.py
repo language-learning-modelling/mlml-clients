@@ -27,6 +27,7 @@ if os.path.exists(training_config_jsonStr_or_fp):
 else:
         config = json.loads(training_config_jsonStr_or_fp)
     
-trainerConfig(**{k.upper(): v for k, v in config.items()})
+config = trainerConfig(**{k.upper(): v for k, v in config.items()})
+print(trainerConfig);input("start training pipe?")
 trainer = Trainer(training_config_fp)
 trainer.train()
