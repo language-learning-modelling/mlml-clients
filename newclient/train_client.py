@@ -10,14 +10,15 @@ import json
 class TrainerConfig:
     MODEL_CHECKPOINT: str
     DATASET_NAME: str
-    HF_CHECKPOINT: str = None
+    HF_CHECKPOINT: False
     LORA: bool = False
     MLM_PROBABILITY: float = 0.15
     BATCH_SIZE: int = 16
 
     def __post_init__(self):
+        required_fields = ["MODEL_CHECKPOINT", "DATASET_NAME"]
         for field_key in self.__dataclass_fields__.keys():
-            if self.__getattribute__(field_key) is None:
+            if field_key in required_fields and self.__getattribute__(field_key) is None:
              raise ValueError(f'missing {field_key} config property')
 
 
