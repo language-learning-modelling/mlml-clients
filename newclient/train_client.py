@@ -2,8 +2,22 @@ from mlml_hugginface import Downloader
 from mlml_hugginface.train import Trainer
 import sys
 import os
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass, field
+from enum import Enum
+
+from dataclasses import dataclass, field
+from enum import Enum
+
+# Define the enum for training strategies
+class TrainingStrategy(Enum):
+    FULL_LLM_TOKENIZE = "FULL+LLM-TOKENIZE"
+    RESUME_LLM_TOKENIZE = "RESUME+LLM-TOKENIZE"
+    FULL_HUMAN_TOKENIZE = "FULL+HUMAN-TOKENIZE"
+
+# Reverse mapping from string to enum
+# Automatically generate reverse mapping from the enum values
+TRAINING_STRATEGY_MAP = {strategy.value: strategy for strategy in TrainingStrategy}
 
 
 @dataclass
@@ -14,13 +28,22 @@ class TrainerConfig:
     LORA: bool = False
     MLM_PROBABILITY: float = 0.15
     BATCH_SIZE: int = 16
+    # Allow training_strategy as a string input, which will be converted to enum
+    training_strategy: str = field(default="FULL+LLM-TOKENIZE")
 
     def __post_init__(self):
         required_fields = ["MODEL_CHECKPOINT", "DATASET_NAME"]
         for field_key in self.__dataclass_fields__.keys():
             if field_key in required_fields and self.__getattribute__(field_key) is None:
-             raise ValueError(f'missing {field_key} config property')
+                raise ValueError(f'missing {field_key} config property')
 
+        # Convert the string training_strategy to enum if it's a valid string
+        if isinstance(self.training_strategy, str):
+            if self.training_strategy not in TRAINING_STRATEGY_MAP:
+                raise ValueError(f'Invalid training strategy: {self.training_strategy}')
+            self.training_strategy = TRAINING_STRATEGY_MAP[self.training_strategy]
+        elif not isinstance(self.training_strategy, TrainingStrategy):
+            raise ValueError(f'Invalid training strategy type: {self.training_strategy}')
 
 training_config_jsonStr_or_fp = "".join(sys.argv[1:])
 
