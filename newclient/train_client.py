@@ -10,7 +10,7 @@ import json
 class TrainerConfig:
     MODEL_CHECKPOINT: str
     DATASET_NAME: str
-    HF_CHECKPOINT: False
+    HF_CHECKPOINT: bool = False
     LORA: bool = False
     MLM_PROBABILITY: float = 0.15
     BATCH_SIZE: int = 16
