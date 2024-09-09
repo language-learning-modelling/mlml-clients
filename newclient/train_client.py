@@ -32,5 +32,5 @@ else:
     
 config = TrainerConfig(**{k.upper(): v for k, v in config.items()})
 print(TrainerConfig);input("start training pipe?")
-trainer = Trainer(training_config_fp)
+trainer = Trainer(config)
 trainer.train()
