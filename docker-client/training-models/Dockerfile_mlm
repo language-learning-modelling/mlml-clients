@@ -1,0 +1,8 @@
+from mlm-pipe-ubuntu24.04-cuda12.04:base
+COPY mlm-training-setup.sh /
+COPY .env /
+RUN /venv/bin/pip install accelerate -U
+
+
+RUN chmod +x mlm-training-setup.sh 
+RUN /mlm-training-setup.sh

@@ -1,0 +1,10 @@
+from nvidia/cuda:12.4.1-base-ubuntu22.04
+COPY .env /
+COPY mlm-training-setup.sh /
+COPY general_setup.sh /
+
+RUN chmod +x general_setup.sh 
+RUN chmod +x mlm-training-setup.sh 
+
+RUN /general_setup.sh
+RUN /mlm-training-setup.sh

@@ -1,0 +1,13 @@
+{
+	"infrastructure":{
+		"INFRASTRUCTURE":"docker",
+		"LOCAL_DATASET":"local",
+		"LOCAL_MODEL":"local",   
+	},
+	"data":{
+		" load EFCAMDAT from batches of json files that are in this folder
+		"BATCHES":"full" 
+	},
+	"training":{
+	},
+}

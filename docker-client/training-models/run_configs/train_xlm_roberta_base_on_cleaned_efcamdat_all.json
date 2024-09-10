@@ -1,0 +1,7 @@
+{
+	"model_checkpoint": "./models/xlm-roberta-base",
+	"model_type": "xlm-roberta-base",
+	"dataset_name": "datasets/EFCAMDAT/cleaned_efcamdat__all.txt",
+	"mlm_probability": 0.15,
+	"batch_size": 4 
+}

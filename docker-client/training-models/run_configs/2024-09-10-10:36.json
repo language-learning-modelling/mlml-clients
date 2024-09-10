@@ -1,0 +1,1 @@
+{ "model": "bert-base-uncased", "dataset": "efcamdat", "training_strategy": "FULL+LLM-TOKENIZE" }

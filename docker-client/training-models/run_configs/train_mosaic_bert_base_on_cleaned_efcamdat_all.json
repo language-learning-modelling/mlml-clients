@@ -1,0 +1,7 @@
+{
+	"model_checkpoint": "./models/mosaic_bert_base",
+	"model_type": "mosaic-bert-base",
+	"dataset_name": "datasets/C4200m/C4200m_all.txt",
+	"mlm_probability": 0.15,
+	"batch_size": 4 
+}

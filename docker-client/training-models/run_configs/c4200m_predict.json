@@ -1,0 +1,8 @@
+{
+	"model_checkpoint": "./models/bert-base-uncased-c4200m-unchaged-vocab-73640000",
+	"texts": [
+		"This is a great [MASK] .",
+		"I once had a [MASK] for dinner .",
+	],
+	"top_k": 30000
+}
