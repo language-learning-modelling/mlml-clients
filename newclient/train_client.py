@@ -6,9 +6,6 @@ import json
 from dataclasses import dataclass, field
 from enum import Enum
 
-from dataclasses import dataclass, field
-from enum import Enum
-
 # Define the enum for training strategies
 class TrainingStrategy(Enum):
     FULL_LLM_TOKENIZE = "FULL+LLM-TOKENIZE"
@@ -29,7 +26,7 @@ class TrainerConfig:
     MLM_PROBABILITY: float = 0.15
     BATCH_SIZE: int = 16
     # Allow training_strategy as a string input, which will be converted to enum
-    training_strategy: str = field(default="FULL+LLM-TOKENIZE")
+    TRAINING_STRATEGY: str = field(default="FULL+LLM-TOKENIZE")
 
     def __post_init__(self):
         required_fields = ["MODEL_CHECKPOINT", "DATASET_NAME"]
@@ -38,11 +35,11 @@ class TrainerConfig:
                 raise ValueError(f'missing {field_key} config property')
 
         # Convert the string training_strategy to enum if it's a valid string
-        if isinstance(self.training_strategy, str):
-            if self.training_strategy not in TRAINING_STRATEGY_MAP:
-                raise ValueError(f'Invalid training strategy: {self.training_strategy}')
-            self.training_strategy = TRAINING_STRATEGY_MAP[self.training_strategy]
-        elif not isinstance(self.training_strategy, TrainingStrategy):
+        if isinstance(self.TRAINING_STRATEGY, str):
+            if self.TRAINING_STRATEGY not in TRAINING_STRATEGY_MAP:
+                raise ValueError(f'Invalid training strategy: {self.TRAINING_STRATEGY}')
+            self.TRAINING_STRATEGY = TRAINING_STRATEGY_MAP[self.TRAINING_STRATEGY]
+        elif not isinstance(self.TRAINING_STRATEGY, TrainingStrategy):
             raise ValueError(f'Invalid training strategy type: {self.training_strategy}')
 
 training_config_jsonStr_or_fp = "".join(sys.argv[1:])
