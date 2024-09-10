@@ -16,11 +16,12 @@ class TrainingStrategy(Enum):
 # Automatically generate reverse mapping from the enum values
 TRAINING_STRATEGY_MAP = {strategy.value: strategy for strategy in TrainingStrategy}
 
-
 @dataclass
 class TrainerConfig:
     MODEL_CHECKPOINT: str
     DATASET_NAME: str
+    DATASET_FOLDER: str = "datasets"
+    SPLIT: str = None
     HF_CHECKPOINT: bool = False
     LORA: bool = False
     MLM_PROBABILITY: float = 0.15
