@@ -55,4 +55,5 @@ else:
 config = TrainerConfig(**{k.upper(): v for k, v in config.items()})
 print(TrainerConfig);input("start training pipe?")
 trainer = Trainer(config)
+print("*"*50."STARTING TRAINING","*"*50)
 trainer.train()
