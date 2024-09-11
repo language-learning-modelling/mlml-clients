@@ -14,6 +14,8 @@ COPY .env /
 COPY create_dict_var.sh /
 COPY client.sh /
 RUN chmod +x client.sh
+COPY debugger.sh /
+RUN chmod +x debugger.sh
 
 ENTRYPOINT ["/client.sh"]
 # CMD ["train_bert_on_cleaned_efcamdat_all.json"]

@@ -25,7 +25,8 @@ class TrainerConfig:
     HF_CHECKPOINT: bool = False
     LORA: bool = False
     MLM_PROBABILITY: float = 0.15
-    BATCH_SIZE: int = 16
+    BATCH_SIZE: int = 4
+
     # Allow training_strategy as a string input, which will be converted to enum
     TRAINING_STRATEGY: str = field(default="FULL+LLM-TOKENIZE")
 
