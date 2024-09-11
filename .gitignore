@@ -191,3 +191,4 @@ newclient/error_pred.txt
 prompting_client/pyenv
 prompting_client
 .vim
+docker-client/training-models/models
