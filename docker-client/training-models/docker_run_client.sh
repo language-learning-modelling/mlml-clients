@@ -1,4 +1,5 @@
 #!/bin/bash
+# alias d=./docker_run_client.sh;d `jo -p model_checkpoint="bert-base-uncased" dataset_name="efcamdat" split="TRAIN" training_strategy="FULL+LLM-TOKENIZE"`  
 # THE MAIN OBJECTIVE of this client is getting configs for setting up the infrastructure and launch docker
 # Ideally it will choose between running docker or simply running as a bahs script
 
