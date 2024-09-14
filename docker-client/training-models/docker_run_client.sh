@@ -1,5 +1,5 @@
 #!/bin/bash
-# alias d=./docker_run_client.sh;d `jo -p base_model_name="bert-base-uncased" run_hash="2024-09-14-15-01" training_checkpoint="checkpoint-150" dataset_name="efcamdat" split="TRAIN" training_strategy="FULL+LLM-TOKENIZE"`
+# alias d=./docker_run_client.sh;d `jo -p base_model_name="bert-base-uncased" run_hash="2024-09-14-20-11" training_checkpoint="checkpoint-50" dataset_name="efcamdat" split="train" training_strategy="FULL+LLM-TOKENIZE"`
 # Ideally it will choose between running docker or simply running as a bahs script
 
 
