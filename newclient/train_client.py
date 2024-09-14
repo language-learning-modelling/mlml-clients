@@ -32,7 +32,8 @@ class TrainerConfig:
     TRAINING_STRATEGY: str = field(default="FULL+LLM-TOKENIZE")                                        
                                                                                                        
     def __post_init__(self):                                                                           
-        required_fields = ["BASE_MODEL_NAME", "DATASET_NAME"]   for field_key in self.__dataclass_fields__.keys():
+        required_fields = ["BASE_MODEL_NAME", "DATASET_NAME"]   
+        for field_key in self.__dataclass_fields__.keys():
             if field_key in required_fields and self.__getattribute__(field_key) is None:
                 raise ValueError(f'missing {field_key} config property')
 
