@@ -1,0 +1,1 @@
+{ "model_checkpoint": "bert-base-uncased", "dataset_name": "efcamdat", "split": "TRAIN", "training_strategy": "FULL+LLM-TOKENIZE" }
