@@ -13,7 +13,6 @@ else
     INPUT="$@"
 fi
 
-
 echo $INPUT
 INFRASTRUCTURE="docker"
 LOCAL_DATASET="local" 
