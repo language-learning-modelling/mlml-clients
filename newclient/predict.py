@@ -53,7 +53,7 @@ def flag_already_processed_for_given_model(
     return filtered_data
 
 def load_input_or_partial(input_fp, output_folder):
-    expected_partial=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
+    expected_partial=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json.zlib"
     if os.path.exists(expected_partial):
         texts = json.load(open(expected_partial))
     else:
