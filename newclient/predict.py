@@ -24,6 +24,7 @@ class Config:
 def write_batch_file(
                 output_fp,
                 data_dict,
+                compress=True,
                      ):
     with open(output_fp,"w") as batch_outf:
         dict_str = json.dumps(
