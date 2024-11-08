@@ -1,6 +1,6 @@
 #!/bin/bash
 # var for session name (to avoid repeated occurences)
-PYTHONBIN="/home/berstearns/projects/language-learning-modelling/mlml-clients/newclient/newenv/bin/python3"
+PYTHONBIN="/home/berstearns/projects/language-learning-modelling/mlml-clients/newclient/venv/bin/python3"
 SCRIPTFP="predict.py"
 MAX_NUM_TO_PROCESS=80
 # sn=xyz
@@ -60,7 +60,6 @@ for INPUTFILENAME in $(ls $INPUT_BATCH_FOLDER -p | grep -v /); do
     fi
   fi
 done
-exit
 for i in ${!DATASPLITS[@]}; do
   INPUTFILENAME=${DATASPLITS[$i]}
   FILEPATH="${INPUT_BATCH_FOLDER}/${INPUTFILENAME}"

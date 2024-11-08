@@ -5,7 +5,7 @@ from mlml_hugginface import Predictor
 from utils import load_config
 from tqdm import tqdm
 from dataclasses import dataclass
-from utils import load_config, load_maskedsentence_txt
+from utils import load_config, load_maskedsentence_txt, compress_dict, decompress_dict
 import time
 
 @dataclass
@@ -53,10 +53,21 @@ def flag_already_processed_for_given_model(
      # filtered_data[text_id].update(text_dict) 
     return filtered_data
 
-def load_input_or_partial(input_fp, output_folder):
-    expected_partial=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json.zlib"
-    if os.path.exists(expected_partial):
+def read_dataset_zlib_json(filepath):
+    with open(filepath, "rb") as inpf:
+        decompressed = decompress_dict(inpf.read())
+    return decompressed
+
+
+
+def load_input_or_partial(input_fp, output_folder, compressed=True):
+    expected_partial=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json.zlib" if compressed else f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
+    if os.path.exists(expected_partial) and compressed:
+        texts = read_dataset_zlib_json(expected_partial)
+    if os.path.exists(expected_partial) and not compressed:
         texts = json.load(open(expected_partial))
+    if (not os.path.exists(expected_partial)) and compressed:
+        texts = read_dataset_zlib_json(input_fp)
     else:
         texts = json.load(open(input_fp))
     return texts
@@ -75,12 +86,16 @@ if __name__ == "__main__":
     config.TEXTS = flag_already_processed_for_given_model(
             writing_batch,
             config.MODEL_NAME 
-            )
+            ) # each item is a tuple (id, data)
     print(f' after flagging already processed for {config.MODEL_NAME} texts has {len(config.TEXTS.keys())} texts to be processed')
     #import random
     #sample_keys = random.sample(sorted(config.TEXTS.keys()),30) 
     #config.TEXTS = {k:config.TEXTS[k] for k in sample_keys} 
     p = Predictor(config_obj=config)
+    print([tpl for tpl in config.TEXTS.items()][0][1]["tokens"][0])
+    input()
+    print([i for i in writing_batch.items()][0])
+    exit()
     n_of_maskedsentences = sum(len(text_d['tokens']) for text_d in config.TEXTS.values())
     n_of_saving_steps = 10 
     writing_size = n_of_maskedsentences // n_of_saving_steps\
@@ -114,8 +129,11 @@ if __name__ == "__main__":
                     batch_outfp,
                     writing_batch
             )
+            print("writing batch now")
+            exit()
         elapsed=time.time()-s
         pbar.set_description(f'# proc : {len(ranked_vocab_dict_per_masked_sentence)} total : {processed_count} save when reaches: {writing_size} it {elapsed} seconds')
+        exit()
     batch_outfp=f"{config.OUTPUT_FOLDER}/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
     write_batch_file(
             batch_outfp,
