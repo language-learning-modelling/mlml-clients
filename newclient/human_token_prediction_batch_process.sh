@@ -8,25 +8,26 @@ DATASPLITS=()
 BATCH_SIZE=20
 TOP_K=100
 
+# models: bert-base-uncased, mosaic-bert-base
 ##################
 ## CELVA FULL   ##
 ##################
-# SPLIT=""
-# DATASET="CELVA"
-# INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch"
-# OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
-# MODEL_NAME="mosaic-bert-base"
-# MODEL_CHECKPOINT="./models/${MODEL_NAME}"
+SPLIT=""
+DATASET="CELVA"
+INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch"
+OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
+MODEL_NAME="bert-base-uncased"
+MODEL_CHECKPOINT="./models/${MODEL_NAME}"
 ##################
 ## EFCAMDAT TRAIN/TEST##
 ##################
-SPLIT="test"
-DATASET="EFCAMDAT"
-MODEL_NAME="bert-base-uncased"
-MODEL_CHECKPOINT="./models/${MODEL_NAME}"
-INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch/${SPLIT}"
-OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch/${SPLIT}"
-FINALIZED_BATCH_FOLDER="./datasets/${DATASET}/finalized/${MODEL_NAME}"
+#SPLIT="test"
+#DATASET="EFCAMDAT"
+#MODEL_NAME="bert-base-uncased"
+#MODEL_CHECKPOINT="./models/${MODEL_NAME}"
+#INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch/${SPLIT}"
+#OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch/${SPLIT}"
+#FINALIZED_BATCH_FOLDER="./datasets/${DATASET}/finalized/${MODEL_NAME}"
 
 for INPUTFILENAME in $(ls $INPUT_BATCH_FOLDER -p | grep -v /); do
   OUTPUTFILENAME=${INPUTFILENAME}_${MODEL_NAME}
@@ -59,6 +60,7 @@ for INPUTFILENAME in $(ls $INPUT_BATCH_FOLDER -p | grep -v /); do
     fi
   fi
 done
+exit
 for i in ${!DATASPLITS[@]}; do
   INPUTFILENAME=${DATASPLITS[$i]}
   FILEPATH="${INPUT_BATCH_FOLDER}/${INPUTFILENAME}"
