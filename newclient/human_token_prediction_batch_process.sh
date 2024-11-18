@@ -1,11 +1,11 @@
 #!/bin/bash
 # var for session name (to avoid repeated occurences)
 PYTHONBIN="/home/berstearns/projects/language-learning-modelling/mlml-clients/newclient/venv/bin/python3"
-SCRIPTFP="predict.py"
+SCRIPTFP="human_token_predict.py"
 MAX_NUM_TO_PROCESS=80
 # sn=xyz
 DATASPLITS=()
-BATCH_SIZE=20
+BATCH_SIZE=48
 TOP_K=100
 
 # models: bert-base-uncased, mosaic-bert-base
@@ -18,6 +18,19 @@ INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch"
 OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch"
 MODEL_NAME="bert-base-uncased"
 MODEL_CHECKPOINT="./models/${MODEL_NAME}"
+
+###################
+## EFCAMDAT FULL ##
+###################
+#SPLIT=""
+#DATASET="EFCAMDAT"
+#MODEL_NAME="bert-base-uncased"
+#INPUT_BATCH_FOLDER="./datasets/${DATASET}/tokenization_batch/${SPLIT}"
+#OUTPUT_BATCH_FOLDER="./datasets/${DATASET}/predictions_batch/${SPLIT}"
+#FINALIZED_BATCH_FOLDER="./datasets/${DATASET}/finalized/${MODEL_NAME}"
+#MODEL_NAME="bert-base-uncased"
+#MODEL_CHECKPOINT="./models/${MODEL_NAME}"
+
 ##################
 ## EFCAMDAT TRAIN/TEST##
 ##################
@@ -66,7 +79,7 @@ for i in ${!DATASPLITS[@]}; do
   #CONFIG={"input_fp": "$FILEPATH","output_folder":"$OUTPUT_BATCH_FOLDER"}
   #CONFIG=\''{"input_fp": "'"$FILEPATH"',"output_folder": "'"$OUTPUT_BATCH_FOLDER"'"}'\'
   CONFIG=$(jo -p input_fp=$FILEPATH output_folder=$OUTPUT_BATCH_FOLDER model_checkpoint=$MODEL_CHECKPOINT batch_size=$BATCH_SIZE top_k=$TOP_K)
-  COMMAND="${PYTHONBIN} -W ignore ${SCRIPTFP} $CONFIG" # -i
+  COMMAND="${PYTHONBIN} -i -W ignore ${SCRIPTFP} $CONFIG" # -i
   echo $i "->" ${DATASPLITS[$i]}
   echo $CONFIG
   # echo $CONFIG #tmux new-window -t "$sn:$((i+1))" -n "${INPUTFILENAME:(-3)}" "zsh -c script.py"
@@ -74,8 +87,8 @@ for i in ${!DATASPLITS[@]}; do
   EXPECTED_PARTIAL_JSON_OUTPUT="${OUTPUT_BATCH_FOLDER}/partial/$OUTPUTFILENAME.json"
   TEST=$(ls $OUTPUT_BATCH_FOLDER | grep -e $OUTPUTFILENAME)
   if [ -n "$TEST" ]; then
-    jq -c . <$EXPECTED_JSON_OUTPUT >$EXPECTED_JSON_OUTPUT'.compact'
-    gzip -9 $EXPECTED_JSON_OUTPUT'.compact'
+    #jq -c . <$EXPECTED_JSON_OUTPUT >$EXPECTED_JSON_OUTPUT'.compact'
+    #gzip -9 $EXPECTED_JSON_OUTPUT'.compact'
     rm $EXPECTED_PARTIAL_JSON_OUTPUT
   fi
 done

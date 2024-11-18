@@ -26,11 +26,16 @@ def write_batch_file(
                 data_dict,
                 compress=True,
                      ):
-    with open(output_fp,"w") as batch_outf:
-        dict_str = json.dumps(
-                data_dict,
-                indent=4)
-        batch_outf.write(dict_str)
+    if not compress:
+        with open(output_fp,"w") as batch_outf:
+            dict_str = json.dumps(
+                    data_dict,
+                    indent=4)
+            batch_outf.write(dict_str)
+    else:
+        with open(output_fp,"wb") as batch_outf:
+            compressed = compress_dict(data_dict)
+            batch_outf.write(compressed)
 
 def flag_already_processed_for_given_model(
         texts_dict_dict,
@@ -58,15 +63,13 @@ def read_dataset_zlib_json(filepath):
         decompressed = decompress_dict(inpf.read())
     return decompressed
 
-
-
 def load_input_or_partial(input_fp, output_folder, compressed=True):
     expected_partial=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json.zlib" if compressed else f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
     if os.path.exists(expected_partial) and compressed:
         texts = read_dataset_zlib_json(expected_partial)
-    if os.path.exists(expected_partial) and not compressed:
+    elif os.path.exists(expected_partial) and not compressed:
         texts = json.load(open(expected_partial))
-    if (not os.path.exists(expected_partial)) and compressed:
+    elif (not os.path.exists(expected_partial)) and compressed:
         texts = read_dataset_zlib_json(input_fp)
     else:
         texts = json.load(open(input_fp))
@@ -78,6 +81,7 @@ if __name__ == "__main__":
     config = Config(**config_dict) 
     config.INPUT_FILENAME = config.INPUT_FP.split("/")[-1] 
     config.MODEL_NAME = config.MODEL_CHECKPOINT.split("/")[-1] 
+    compressed=True
     writing_batch = load_input_or_partial(
                 config.INPUT_FP,
                 config.OUTPUT_FOLDER
@@ -92,10 +96,6 @@ if __name__ == "__main__":
     #sample_keys = random.sample(sorted(config.TEXTS.keys()),30) 
     #config.TEXTS = {k:config.TEXTS[k] for k in sample_keys} 
     p = Predictor(config_obj=config)
-    print([tpl for tpl in config.TEXTS.items()][0][1]["tokens"][0])
-    input()
-    print([i for i in writing_batch.items()][0])
-    exit()
     n_of_maskedsentences = sum(len(text_d['tokens']) for text_d in config.TEXTS.values())
     n_of_saving_steps = 10 
     writing_size = n_of_maskedsentences // n_of_saving_steps\
@@ -120,21 +120,25 @@ if __name__ == "__main__":
 
             text_id, token_idx=mlm_id.split("_")[-2:]
             token_idx = int(token_idx)
-            writing_batch[text_id]["tokens"][token_idx]["predictions"]["models"][config.MODEL_NAME] = preds_dict_lst
+            writing_batch[text_id]["tokens"][token_idx]["predictions"]["models"][config.MODEL_NAME] = [
+                    {
+                        "token_vocab_idx": d["token_vocab_idx"],
+                        "score": d["score"],
+                    } for d in preds_dict_lst
+            ]
         # writing_batch.update(ranked_vocab_dict_per_masked_sentence)
         if processed_count >= writing_size:
             writing_size+=writing_size
-            batch_outfp=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
+            batch_outfp=f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json.zlib" if compressed else f"{config.OUTPUT_FOLDER}/partial/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
+
             write_batch_file(
                     batch_outfp,
                     writing_batch
             )
             print("writing batch now")
-            exit()
         elapsed=time.time()-s
         pbar.set_description(f'# proc : {len(ranked_vocab_dict_per_masked_sentence)} total : {processed_count} save when reaches: {writing_size} it {elapsed} seconds')
-        exit()
-    batch_outfp=f"{config.OUTPUT_FOLDER}/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
+    batch_outfp=f"{config.OUTPUT_FOLDER}/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json.zlib" if compressed else f"{config.OUTPUT_FOLDER}/{config.INPUT_FILENAME}_{config.MODEL_NAME}.json"
     write_batch_file(
             batch_outfp,
             writing_batch
